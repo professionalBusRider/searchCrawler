@@ -1,13 +1,38 @@
 from pygoogle import pygoogle
+from bs4 import BeautifulSoup
 #WARNING pygoogle can only get a small amount of searches per time interval
 
 #searchTerms: array of items to google
 #allUrls: array of arrays of google urls
 
+#returns array of divs based on keyWord
+def findAll(pageSource,keyWord):
+	soup = BeautifulSoup(pageSource)
+	return soup.findAll(keyWord)
+
+#returns array of every word in pageSource
+def getWordArray(pageSource):
+	soup = BeautifulSoup(pageSource)
+	wordArray = []
+	for sentence in soup.stripped_strings:
+		words = []
+		words = sentence.split()
+		for word in words:
+			wordArray.append(word)
+	return wordArray
+
+#returns page source of url
+def getPage(url):
+	try:
+		import urllib
+		return urllib.urlopen(url).read()
+	except:
+		return "NULLPAGESOURCE"
+
 #getting user input
 searchTermsString = raw_input("search terms: ")
 searchTerms = []
-searchTerms = searchTermsString.split()
+searchTerms = searchTermsString.split(',')
 
 allUrls = []
 #a way to test without query google
@@ -25,13 +50,14 @@ else:
 		urls = pygoog.get_urls()
 		allUrls.append(urls)
 
+print 'found urls, now searching...'
 
+for websites in allUrls:
+	for website in websites:
+		pageSource = getPage(website)
+		#if the source of the page was able to load
+		if pageSource != 'NULLPAGESOURCE':
+			print len(getWordArray(pageSource))
+		else:
+			print 'ERROR: could not load page source for: %s' % website
 
-
-
-
-
-#g = pygoogle('Abbvie')
-#g.pages = 1
-#print '*Found %s results*'%(g.get_result_count())
-#print g.get_urls()
