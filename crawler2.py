@@ -21,6 +21,22 @@ def getWordArray(pageSource):
 			wordArray.append(word)
 	return wordArray
 
+#returns the number of times keyWord is in wordArray
+def getWordCount(wordArray,keyWord):
+	occuranceStrict = 0
+	occuranceSoft = 0
+	for word in wordArray:
+		if word == keyWord:
+			occuranceStrict+=1
+		if word.find(keyWord) != -1:
+			occuranceSoft+=1
+	return occuranceStrict, occuranceSoft
+
+#returns content within <title>
+def getTitle(pageSource):
+	soup = BeautifulSoup(pageSource)
+	return soup.title
+
 #returns page source of url
 def getPage(url):
 	try:
@@ -57,7 +73,11 @@ for websites in allUrls:
 		pageSource = getPage(website)
 		#if the source of the page was able to load
 		if pageSource != 'NULLPAGESOURCE':
-			print len(getWordArray(pageSource))
+			#wordArray = getWordArray(pageSource)
+			#print website
+			print getTitle(pageSource)
+			#print getHeader(pageSource)
+			
 		else:
 			print 'ERROR: could not load page source for: %s' % website
 
