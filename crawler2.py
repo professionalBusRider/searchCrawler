@@ -1,3 +1,6 @@
+import jinja2
+import os
+
 from pygoogle import pygoogle
 from bs4 import BeautifulSoup
 #WARNING pygoogle can only get a small amount of searches per time interval
@@ -45,12 +48,22 @@ def getPage(url):
 	except:
 		return "NULLPAGESOURCE"
 
+def renderPage(dataPackage):
+	print len(dataPackage[0])
+	loader = jinja2.FileSystemLoader(os.getcwd())
+	environment = jinja2.Environment(loader=loader, trim_blocks = True, lstrip_blocks = True)
+	template = environment.get_template('template.html')
+	render = template.render(title = 'title braaahh', allUrls = dataPackage[0])
+	print render
+
+
 #getting user input
 searchTermsString = raw_input("search terms: ")
 searchTerms = []
 searchTerms = searchTermsString.split(',')
 
 allUrls = []
+
 #a way to test without query google
 if('NULL' in searchTerms):
 	print 'predetermined FDA search...'
@@ -68,16 +81,30 @@ else:
 
 print 'found urls, now searching...'
 
+dataPackage = []
+wordCountSubPackage = []
+wordCountStrictSubPackage = []
+wordCountSoftSubPackage = []
+
 for websites in allUrls:
 	for website in websites:
 		pageSource = getPage(website)
 		#if the source of the page was able to load
 		if pageSource != 'NULLPAGESOURCE':
-			#wordArray = getWordArray(pageSource)
-			#print website
-			print getTitle(pageSource)
-			#print getHeader(pageSource)
+			wordArray = getWordArray(pageSource)
+			wordCountStrict, wordCountSoft = getWordCount(wordArray, "medical")
+			wordCountStrictSubPackage.append(wordCountStrict)
+			wordCountSoftSubPackage.append(wordCountSoft)
 			
 		else:
 			print 'ERROR: could not load page source for: %s' % website
+			wordCountStrictSubPackage.append('N/A')
+			wordCountSoftSubPackage.append('N/A')
 
+wordCountSubPackage.append(wordCountStrictSubPackage)
+wordCountSubPackage.append(wordCountSoftSubPackage)
+
+dataPackage.append(allUrls)
+dataPackage.append(wordCountSubPackage)
+
+renderPage(dataPackage)

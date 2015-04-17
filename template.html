@@ -1,0 +1,16 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>{{ title }}</title>
+	</head>
+	<body>
+		<p>These are all the website:</p>
+		{%for websites in allUrls %}
+			<p>New website search term:</p>
+			{%for website in websites%}
+				<p>{{ website }}</p>
+			{% endfor %}
+		{% endfor %}
+	</body>
+</html>
