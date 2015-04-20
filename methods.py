@@ -47,10 +47,9 @@ def getPage(url):
 	except:
 		return "NULLPAGESOURCE"
 
-def renderPage(dataPackage):
-	print len(dataPackage[0])
+def getRender(dataPackage):
 	loader = jinja2.FileSystemLoader(os.getcwd())
 	environment = jinja2.Environment(loader=loader, trim_blocks = True, lstrip_blocks = True)
 	template = environment.get_template('template.html')
 	render = template.render(title = 'title braaahh', allUrls = dataPackage[0])
-	print render
+	return render

@@ -56,4 +56,7 @@ def getDataPackage(allUrls):
 	return dataPackage
 
 def renderPage(dataPackage):
-	methods.renderPage(dataPackage)
+	render = methods.getRender(dataPackage)
+	htmlFile = open("/var/www/html/main.html","wb")
+	htmlFile.write(render)
+	htmlFile.close()
