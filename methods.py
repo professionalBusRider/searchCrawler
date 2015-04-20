@@ -1,7 +1,6 @@
 import jinja2
 import os
 
-from pygoogle import pygoogle
 from bs4 import BeautifulSoup
 #WARNING pygoogle can only get a small amount of searches per time interval
 

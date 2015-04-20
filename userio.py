@@ -1,57 +1,59 @@
-import jinja2
-import os
-
+import methods
 from pygoogle import pygoogle
-from bs4 import BeautifulSoup
 
-#getting user input
-searchTermsString = raw_input("search terms: ")
-searchTerms = []
-searchTerms = searchTermsString.split(',')
+def getInput():
+	searchTermsString = raw_input("search terms: ")
+	searchTerms = []
+	searchTerms = searchTermsString.split(',')
+	return searchTerms
 
-allUrls = []
+def getUrls(searchTerms):
+	allUrls = []
+	#a way to test without query google
+	if('NULL' in searchTerms):
+		print 'predetermined FDA search...'
+		allUrls = [[u'http://www.fda.gov/', u'http://www.fda.gov/Drugs/', 
+		u'http://www.fda.gov/MedicalDevices/', u'http://www.fda.gov/Safety/Recalls/', 
+		u'http://en.wikipedia.org/wiki/Food_and_Drug_Administration', u'http://www.fda.com/', 
+		u'https://www.facebook.com/FDA']]
+	else:
+		for term in searchTerms:
+			pygoog = pygoogle(term)
+			pygoog.pages = 1
+			urls = []
+			urls = pygoog.get_urls()
+			allUrls.append(urls)
 
-#a way to test without query google
-if('NULL' in searchTerms):
-	print 'predetermined FDA search...'
-	allUrls = [[u'http://www.fda.gov/', u'http://www.fda.gov/Drugs/', 
-	u'http://www.fda.gov/MedicalDevices/', u'http://www.fda.gov/Safety/Recalls/', 
-	u'http://en.wikipedia.org/wiki/Food_and_Drug_Administration', u'http://www.fda.com/', 
-	u'https://www.facebook.com/FDA']]
-else:
-	for term in searchTerms:
-		pygoog = pygoogle(term)
-		pygoog.pages = 1
-		urls = []
-		urls = pygoog.get_urls()
-		allUrls.append(urls)
+	return allUrls
 
-print 'found urls, now searching...'
+def getDataPackage(allUrls):
+	dataPackage = []
+	wordCountSubPackage = []
+	wordCountStrictSubPackage = []
+	wordCountSoftSubPackage = []
 
-dataPackage = []
-wordCountSubPackage = []
-wordCountStrictSubPackage = []
-wordCountSoftSubPackage = []
+	for websites in allUrls:
+		for website in websites:
+			pageSource = methods.getPage(website)
+			#if the source of the page was able to load
+			if pageSource != 'NULLPAGESOURCE':
+				wordArray = methods.getWordArray(pageSource)
+				wordCountStrict, wordCountSoft = methods.getWordCount(wordArray, "medical")
+				wordCountStrictSubPackage.append(wordCountStrict)
+				wordCountSoftSubPackage.append(wordCountSoft)
+				
+			else:
+				print 'ERROR: could not load page source for: %s' % website
+				wordCountStrictSubPackage.append('N/A')
+				wordCountSoftSubPackage.append('N/A')
 
-for websites in allUrls:
-	for website in websites:
-		pageSource = getPage(website)
-		#if the source of the page was able to load
-		if pageSource != 'NULLPAGESOURCE':
-			wordArray = getWordArray(pageSource)
-			wordCountStrict, wordCountSoft = getWordCount(wordArray, "medical")
-			wordCountStrictSubPackage.append(wordCountStrict)
-			wordCountSoftSubPackage.append(wordCountSoft)
-			
-		else:
-			print 'ERROR: could not load page source for: %s' % website
-			wordCountStrictSubPackage.append('N/A')
-			wordCountSoftSubPackage.append('N/A')
+	wordCountSubPackage.append(wordCountStrictSubPackage)
+	wordCountSubPackage.append(wordCountSoftSubPackage)
 
-wordCountSubPackage.append(wordCountStrictSubPackage)
-wordCountSubPackage.append(wordCountSoftSubPackage)
+	dataPackage.append(allUrls)
+	dataPackage.append(wordCountSubPackage)
 
-dataPackage.append(allUrls)
-dataPackage.append(wordCountSubPackage)
+	return dataPackage
 
-renderPage(dataPackage)
+def renderPage(dataPackage):
+	methods.renderPage(dataPackage)
